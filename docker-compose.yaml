@@ -1,0 +1,15 @@
+services:
+  mars_rover:
+    build: .
+    container_name: mars_rover
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+
+  tests:
+    build: .
+    container_name: mars_rover_test
+    volumes:
+      - .:/app
+    command: ["bundle", "exec", "rspec"]

@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/domain/position'
+require_relative '../lib/domain/direction'
+require_relative '../lib/domain/plateau'
+require_relative '../lib/domain/rover'
+require_relative '../lib/utils/colorize'
+require_relative '../lib/application/mission_control'
+
+include Colorize
+
+def print_welcome
+  puts blue("\n=== Mars Rover Mission Control ===")
+  puts "\nInput format:"
+  puts "--------------"
+  puts "Line 1: Plateau upper-right coordinates (e.g., 5 5)"
+  puts "For each rover:"
+  puts "  - Line N: Initial position and direction (e.g., 1 2 N)"
+  puts "  - Line N+1: Movement commands (e.g., LMLMLMLMM)"
+  puts "\nExample:"
+  puts yellow("5 5")
+  puts yellow("1 2 N")
+  puts yellow("LMLMLMLMM")
+  puts yellow("3 3 E")
+  puts yellow("MMRMMRMRRM")
+  puts "\n#{blue('Enter your input (press Enter twice when finished):')}"
+end
+
+def read_input
+  input_lines = []
+  loop do
+    line = gets
+    break if line.strip.empty?
+    input_lines << line.chomp
+  end
+  input_lines.join("\n")
+rescue Interrupt
+  puts red("\nInput interrupted. Exiting...")
+  exit 1
+end
+
+def validate_empty_input(input)
+  if input.strip.empty?
+    puts red("\nError: No input provided")
+    puts "Please provide input in the correct format"
+    exit 1
+  end
+end
+
+begin
+  print_welcome
+  input = read_input
+  validate_empty_input(input)
+
+  mission = MissionControl.new(input)
+  puts blue("\nProcessing mission...")
+  results = mission.execute
+
+  puts green("\nMission completed successfully!")
+  puts "\nFinal Rover Positions:"
+  puts "---------------------"
+  results.each_with_index do |result, index|
+    puts green("Rover ##{index + 1}: #{result}")
+  end
+
+rescue ArgumentError => e
+  puts red("\nError: #{e.message}")
+  puts "Please check your input format and try again."
+  exit 1
+rescue StandardError => e
+  puts red("\nUnexpected error occurred: #{e.message}")
+  puts "Please report this issue with the input that caused it."
+  exit 1
+end
