@@ -3,17 +3,29 @@
 # The generated `.rspec` file contains `--require spec_helper` which will cause
 # this file to always be loaded, without a need to explicitly require it in any
 # files.
-#
-# Given that it is always loaded, you are encouraged to keep this file as
-# light-weight as possible. Requiring heavyweight dependencies from this file
-# will add to the boot time of your test suite on EVERY test run, even for an
-# individual file that may not need all of that loaded. Instead, consider making
-# a separate helper file that requires the additional dependencies and performs
-# the additional setup, and require it from the spec files that actually need
-# it.
-#
-# See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+module TestHelpers
+  def suppress_output
+    original_stdout = $stdout
+    original_stderr = $stderr
+    $stdout = File.new('/dev/null', 'w')
+    $stderr = File.new('/dev/null', 'w')
+    yield
+  ensure
+    $stdout = original_stdout
+    $stderr = original_stderr
+  end
+end
+
 RSpec.configure do |config|
+  # Add the TestHelpers module to all test examples
+  config.include TestHelpers
+
+  # Add a global around block to suppress output for all tests
+  config.around(:each) do |example|
+    suppress_output { example.run }
+  end
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

@@ -1,4 +1,5 @@
 require_relative '../utils/colorize'
+require_relative 'warnings/plateau_boundary_warning'
 
 class Rover
   include Colorize
@@ -51,9 +52,10 @@ class Rover
 
     if @plateau.contains?(new_position)
       @position = new_position
-      @command_status << green("Moved forward successfully")
+      @command_status << "Moved to position #{@position}"
     else
-      @command_status << yellow("⚠️  Move rejected: boundary detected at #{new_position}. Maintaining position at #{position}")
+      warn PlateauBoundaryWarning.for_position(new_position)
+      @command_status << "Movement blocked: position #{new_position} is outside plateau"
     end
   end
 end

@@ -29,4 +29,8 @@ class Position
   def move_west
     move(-1, 0)
   end
+
+  def to_s
+    "#{@x} #{@y}"
+  end
 end
